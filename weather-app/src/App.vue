@@ -8,18 +8,18 @@
       </div>
     </div>
 
-    <div class="weathertable">
-      <table id="tableID" border="2">
+    <div class="weathertable" >
+      <table id="tableID" border="3" style="align-items: center;">
         <tr>
           <th>Date</th>
-          <th>Average temperature</th>
-          <th>Average wind speed</th>
-          <th>Average rainfall</th>
+          <th>Average temperature (&degC)</th>
+          <th>Average wind speed (meters/seconds)</th>
+          <th>Average rainfall (mm) for 3 hours</th>
         </tr>
         <tr v-for="weather in weatherData.weatherTable">
           <td>{{weather.date}}</td>
-          <td>{{weather.average_temperature}}&degC</td>
-          <td>{{weather.average_wind}}</td>
+          <td>{{weather.average_temperature}}</td>
+          <td>{{weather.average_wind}} </td>
           <td>{{weather.average_rain}}</td>
         </tr>
       </table>
@@ -98,5 +98,9 @@
   }
   .weatherData h1{
     font-size: 80px;
+  }
+
+  .weathertable{
+    margin-top: 20px;
   }
 </style>
