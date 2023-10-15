@@ -18,9 +18,9 @@
         </tr>
         <tr v-for="weather in weatherData.weatherTable">
           <td>{{weather.date}}</td>
-          <td>{{weather.average_temperature}}</td>
-          <td>{{weather.average_wind}} </td>
-          <td>{{weather.average_rain}}</td>
+          <td>{{weather.avgTemp}}</td>
+          <td>{{weather.avgWindSpeed}} </td>
+          <td>{{weather.avgRainfall}}</td>
         </tr>
       </table>
     </div>
@@ -42,7 +42,7 @@
         avgTemp: null,
         avgWindSpeed: null,
         avgRainfall: null,
-        dates: null,
+        date: null,
         weatherTable: null,
       })
       
@@ -66,13 +66,13 @@
           // console.log(weatherData.avgTemp)
           weatherData.avgRainfall = (Object.values(getAvgRainPerDay(response.data.list))) //get array of daily avg rainfall in order of timestamp
           // console.log(weatherData.avgRainfall)
-          weatherData.dates = getDates(response.data.list)
+          weatherData.date = getDates(response.data.list)
           weatherData.weatherTable = [
-            {date: weatherData.dates[0], average_temperature: weatherData.avgTemp[0], average_wind: weatherData.avgWindSpeed[0], average_rain: weatherData.avgRainfall[0]},
-            {date: weatherData.dates[1], average_temperature: weatherData.avgTemp[1], average_wind: weatherData.avgWindSpeed[1], average_rain: weatherData.avgRainfall[1]},
-            {date: weatherData.dates[2], average_temperature: weatherData.avgTemp[2], average_wind: weatherData.avgWindSpeed[2], average_rain: weatherData.avgRainfall[2]},
-            {date: weatherData.dates[3], average_temperature: weatherData.avgTemp[3], average_wind: weatherData.avgWindSpeed[3], average_rain: weatherData.avgRainfall[3]},
-            {date: weatherData.dates[4], average_temperature: weatherData.avgTemp[4], average_wind: weatherData.avgWindSpeed[4], average_rain: weatherData.avgRainfall[4]},
+            {date: weatherData.date[0], avgTemp: weatherData.avgTemp[0], avgWindSpeed: weatherData.avgWindSpeed[0], avgRainfall: weatherData.avgRainfall[0]},
+            {date: weatherData.date[1], avgTemp: weatherData.avgTemp[1], avgWindSpeed: weatherData.avgWindSpeed[1], avgRainfall: weatherData.avgRainfall[1]},
+            {date: weatherData.date[2], avgTemp: weatherData.avgTemp[2], avgWindSpeed: weatherData.avgWindSpeed[2], avgRainfall: weatherData.avgRainfall[2]},
+            {date: weatherData.date[3], avgTemp: weatherData.avgTemp[3], avgWindSpeed: weatherData.avgWindSpeed[3], avgRainfall: weatherData.avgRainfall[3]},
+            {date: weatherData.date[4], avgTemp: weatherData.avgTemp[4], avgWindSpeed: weatherData.avgWindSpeed[4], avgRainfall: weatherData.avgRainfall[4]},
           ]
 
           for(let i=0;i<response.data.list.length;i++){
