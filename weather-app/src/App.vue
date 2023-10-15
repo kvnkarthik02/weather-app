@@ -24,8 +24,8 @@
         </tr>
       </table>
     </div>
-
   </div>
+
 </template>
 
 
@@ -74,6 +74,10 @@
             {date: weatherData.dates[3], average_temperature: weatherData.avgTemp[3], average_wind: weatherData.avgWindSpeed[3], average_rain: weatherData.avgRainfall[3]},
             {date: weatherData.dates[4], average_temperature: weatherData.avgTemp[4], average_wind: weatherData.avgWindSpeed[4], average_rain: weatherData.avgRainfall[4]},
           ]
+
+          for(let i=0;i<response.data.list.length;i++){
+            console.log(response.data.list[i].weather)
+          }
         })
       }
 
