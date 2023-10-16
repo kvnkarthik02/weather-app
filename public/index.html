@@ -12,10 +12,37 @@
     <div class="enterCity">
       <input v-model="city" type="text" placeholder="Enter City">
       <div class="button">
-        <button v-on:click="getInfo">Get Weather</button>
+        <button v-on:click="getInfo">Get Weather Forecast (Next 5 days)</button>
+        <button v-on:click="getCurrInfo">Get Current Weather</button>
       </div>
     </div>
+
+    <div class="currweather">
+      <h3>Current weather at {{city}}:</h2>
+      <h1>{{currTemp}}</h1>
+      <h2>{{currDescription}}</h1>
+    </div>
+    
+    <div class="weathertable" >
+      <h3>Weather for the next 5 days:</h2>
+      <table id="tableID" border="3" style="align-items: center;">
+        <tr>
+          <th>Date</th>
+          <th>Average temperature (&degC)</th>
+          <th>Average wind speed (meters/seconds)</th>
+          <th>Average rainfall (mm) for 3 hours</th>
+        </tr>
+        <tr v-for="weather in weatherTable">
+          <td>{{weather.date}}</td>
+          <td>{{weather.avgTempPerDay}}</td>
+          <td>{{weather.avgWindSpeedPerDay}} </td>
+          <td>{{weather.avgRainfallPerDay}}</td>
+        </tr>
+      </table>
+    </div>
   </div>
+
+
 
 
   <script>
@@ -26,10 +53,13 @@
         city: '',
         rain: false, 
         avgTemp: null,
-        weatherTable: null
+        weatherTable: null,
+        currTemp: null,
+        currDescription: null
       }, 
       methods :{
-        getInfo: getWeather
+        getInfo: getWeather,
+        getCurrInfo: getCurrWeather
       }
     })
 
@@ -37,10 +67,42 @@
       fetch('http://127.0.0.1:3000/weather/' + this.city)
       .then(response => response.json())
       .then(response => {
-        console.log(response)
+        // console.log(response)
+        this.rain = response.rain
+        this.avgTemp = response.avgTemp
+        this.weatherTable = response.weatherTable
       })
     }
+
+    function getCurrWeather(){
+      fetch('http://127.0.0.1:3000/currweather/' + this.city)
+      .then(response => response.json())
+      .then(response => {
+        this.currTemp = response.temp
+        this.currDescription = response.description
+      })
+    }
+
   </script>
+  <style lang="css">
+    .enterCity input{
+      font-size: 30px;
+    }
+    .enterCity button{
+      margin-top: 20px;
+    }
+    .weatherData{
+      margin-top:20px;
+    }
+    .weatherData h1{
+      font-size: 80px;
+    }
+  
+    .weathertable{
+      margin-top: 20px;
+    }
+  </style>
+
 </body>
 </html> 
 

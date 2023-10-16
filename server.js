@@ -11,6 +11,7 @@ app.use(cors());
 
 const geocodeURL = "http://api.openweathermap.org/geo/1.0/direct"
 const weatherURL = "https://api.openweathermap.org/data/2.5/forecast"
+const currWeatherURL = "https://api.openweathermap.org/data/2.5/weather"
 const apiKey = "90c462a2eb78cf05539d31d26003491a"
 
 app.get('/weather/:city', getWeather);
@@ -20,42 +21,59 @@ async function getWeather(req, res){
     fetch(geocodeURL+'?q='+req.params.city+'&limit=1&appid='+apiKey)
     .then(response => response.json())
     .then(data => {
+      console.log("hello at server")
         let rainBool = false
-        fetch('https://api.openweathermap.org/data/2.5/forecast?lat='+data[0].lat+'&lon='+data[0].lon+'&units=metric&appid=90c462a2eb78cf05539d31d26003491a')
+        fetch(weatherURL+'?lat='+data[0].lat+'&lon='+data[0].lon+'&units=metric&appid=90c462a2eb78cf05539d31d26003491a')
         .then(response => response.json())
         .then(data => {
-            console.log(lat, lon)
-            console.log(data)
-            let avgWindSpeedPerDay = (Object.values(getAvgWindSpeedPerDay(data.list)))
-            let avgTempPerDay = (Object.values(getAvgTempPerDay(data.list)))
-            let  calcAvgTemp= array => array.reduce((a, b) => a + b) / array.length;
-            let avgTemp = calcAvgTemp(avgTempPerDay)
-            let avgRainfallPerDay = (Object.values(getAvgRainPerDay(data.list)))
+          console.log(lat, lon)
+          console.log(data)
+          let avgWindSpeedPerDay = (Object.values(getAvgWindSpeedPerDay(data.list)))
+          let avgTempPerDay = (Object.values(getAvgTempPerDay(data.list)))
+          let  calcAvgTemp= array => array.reduce((a, b) => a + b) / array.length;
+          let avgTemp = calcAvgTemp(avgTempPerDay)
+          let avgRainfallPerDay = (Object.values(getAvgRainPerDay(data.list)))
 
-            for(let i=0; i<avgRainfallPerDay.length; i++){
-                if(avgRainfallPerDay[i] != 0){
-                    rainBool = true
-                }
-            }
+          for(let i=0; i<avgRainfallPerDay.length; i++){
+              if(avgRainfallPerDay[i] != 0){
+                  rainBool = true
+              }
+          }
+          let date = getDates(data.list)
+          weatherTable = [
+              {date: date[0], avgTempPerDay: avgTempPerDay[0], avgWindSpeedPerDay: avgWindSpeedPerDay[0], avgRainfallPerDay: avgRainfallPerDay[0]},
+              {date: date[1], avgTempPerDay: avgTempPerDay[1], avgWindSpeedPerDay: avgWindSpeedPerDay[1], avgRainfallPerDay: avgRainfallPerDay[1]},
+              {date: date[2], avgTempPerDay: avgTempPerDay[2], avgWindSpeedPerDay: avgWindSpeedPerDay[2], avgRainfallPerDay: avgRainfallPerDay[2]},
+              {date: date[3], avgTempPerDay: avgTempPerDay[3], avgWindSpeedPerDay: avgWindSpeedPerDay[3], avgRainfallPerDay: avgRainfallPerDay[3]},
+              {date: date[4], avgTempPerDay: avgTempPerDay[4], avgWindSpeedPerDay: avgWindSpeedPerDay[4], avgRainfallPerDay: avgRainfallPerDay[4]},
+          ]
+          finalRes = {
+              rain: rainBool,
+              avgTemp: avgTemp,
+              weatherTable: weatherTable
+          }
+          res.json(finalRes)
+      })
+    })
+}
 
-            let date = getDates(data.list)
-            weatherTable = [
-                {date: date[0], avgTempPerDay: avgTempPerDay[0], avgWindSpeedPerDay: avgWindSpeedPerDay[0], avgRainfallPerDay: avgRainfallPerDay[0]},
-                {date: date[1], avgTempPerDay: avgTempPerDay[1], avgWindSpeedPerDay: avgWindSpeedPerDay[1], avgRainfallPerDay: avgRainfallPerDay[1]},
-                {date: date[2], avgTempPerDay: avgTempPerDay[2], avgWindSpeedPerDay: avgWindSpeedPerDay[2], avgRainfallPerDay: avgRainfallPerDay[2]},
-                {date: date[3], avgTempPerDay: avgTempPerDay[3], avgWindSpeedPerDay: avgWindSpeedPerDay[3], avgRainfallPerDay: avgRainfallPerDay[3]},
-                {date: date[4], avgTempPerDay: avgTempPerDay[4], avgWindSpeedPerDay: avgWindSpeedPerDay[4], avgRainfallPerDay: avgRainfallPerDay[4]},
-            ]
-            finalRes = {
-                rain: rainBool,
-                avgTemp: avgTemp,
-                weatherTable: weatherTable
-            }
-            res.json(finalRes)
+app.get('/currweather/:city', getCurrWeather);
+var lon = null
+var lat = null
+async function getCurrWeather(req, res){
+    fetch(geocodeURL+'?q='+req.params.city+'&limit=1&appid='+apiKey)
+    .then(response => response.json())
+    .then(data => {
+      fetch(currWeatherURL+'?lat='+data[0].lat+'&lon='+data[0].lon+'&units=metric&appid='+apiKey)
+        .then(response => response.json())
+        .then(data => {
+          let finalRes = {
+            temp: data.main.temp,
+            description: data.weather[0].main
+          }
+          res.json(finalRes)
         })
     })
-    // fetch(weatherURL+'?lat='+lat+'&lon='+lon+'&units=metric&appid='+apiKey)
-
 }
 
 
