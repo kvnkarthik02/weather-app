@@ -1,60 +1,102 @@
 const express = require('express');
 const path = require('path');
-const NodeGeocoder = require('node-geocoder');
 const cors = require('cors');
+var amadeus = require('amadeus');
+const unirest = require("unirest");
+const cheerio = require("cheerio");
 
 const app = express();
 app.use(cors());
-// let publicPath= path.resolve(__dirname,"/public")
-// app.use(express.static(publicPath));
-
 
 const geocodeURL = "http://api.openweathermap.org/geo/1.0/direct"
 const weatherURL = "https://api.openweathermap.org/data/2.5/forecast"
 const currWeatherURL = "https://api.openweathermap.org/data/2.5/weather"
+const pollutionURL = "http://api.openweathermap.org/data/2.5/air_pollution/forecast"
 const apiKey = "90c462a2eb78cf05539d31d26003491a"
 
-app.get('/weather/:city', getWeather);
-var lon = null
-var lat = null
-async function getWeather(req, res){
-    fetch(geocodeURL+'?q='+req.params.city+'&limit=1&appid='+apiKey)
+//https://github.com/amadeus4dev/amadeus-node
+var amadeus = new amadeus({
+  clientId: 'u9I90aqxDr6aypQU2NokJa7TtlfR0QeH',
+  clientSecret: 'zhxGkAGzQVjZD65Y'
+});
+
+
+app.get('/hotels/:city', getHotelList);
+async function getHotelList(req, res){
+  // console.log(req.params.city)
+  fetch(geocodeURL+'?q='+req.params.city+'&limit=1&appid='+apiKey)
+  .then(response => response.json())
+  .then(data => {
+    amadeus.referenceData.locations.hotels.byGeocode.get({
+      latitude: data[0].lat,
+      longitude: data[0].lon
+    }).then(function (response){
+      res.json(response.data)
+    })
+  })
+}
+
+app.get('/pollution/:city', getPollution);
+async function getPollution(req, res) {
+  fetch(geocodeURL+'?q='+req.params.city+'&limit=1&appid='+apiKey)
+  .then(response => response.json())
+  .then(data => {
+    fetch(pollutionURL+'?lat='+data[0].lat+'&lon='+data[0].lon+'&appid='+apiKey)
     .then(response => response.json())
     .then(data => {
-      console.log("hello at server")
-        let rainBool = false
-        fetch(weatherURL+'?lat='+data[0].lat+'&lon='+data[0].lon+'&units=metric&appid=90c462a2eb78cf05539d31d26003491a')
-        .then(response => response.json())
-        .then(data => {
-          console.log(lat, lon)
-          console.log(data)
-          let avgWindSpeedPerDay = (Object.values(getAvgWindSpeedPerDay(data.list)))
-          let avgTempPerDay = (Object.values(getAvgTempPerDay(data.list)))
-          let  calcAvgTemp= array => array.reduce((a, b) => a + b) / array.length;
-          let avgTemp = calcAvgTemp(avgTempPerDay)
-          let avgRainfallPerDay = (Object.values(getAvgRainPerDay(data.list)))
-
-          for(let i=0; i<avgRainfallPerDay.length; i++){
-              if(avgRainfallPerDay[i] != 0){
-                  rainBool = true
-              }
-          }
-          let date = getDates(data.list)
-          weatherTable = [
-              {date: date[0], avgTempPerDay: avgTempPerDay[0], avgWindSpeedPerDay: avgWindSpeedPerDay[0], avgRainfallPerDay: avgRainfallPerDay[0]},
-              {date: date[1], avgTempPerDay: avgTempPerDay[1], avgWindSpeedPerDay: avgWindSpeedPerDay[1], avgRainfallPerDay: avgRainfallPerDay[1]},
-              {date: date[2], avgTempPerDay: avgTempPerDay[2], avgWindSpeedPerDay: avgWindSpeedPerDay[2], avgRainfallPerDay: avgRainfallPerDay[2]},
-              {date: date[3], avgTempPerDay: avgTempPerDay[3], avgWindSpeedPerDay: avgWindSpeedPerDay[3], avgRainfallPerDay: avgRainfallPerDay[3]},
-              {date: date[4], avgTempPerDay: avgTempPerDay[4], avgWindSpeedPerDay: avgWindSpeedPerDay[4], avgRainfallPerDay: avgRainfallPerDay[4]},
-          ]
-          finalRes = {
-              rain: rainBool,
-              avgTemp: avgTemp,
-              weatherTable: weatherTable
-          }
-          res.json(finalRes)
-      })
+      let pollution = 0
+      for(let i=0; i<data.list.length; i++){
+        pollution =pollution +  data.list[i].components.pm2_5
+      }
+      pollution = pollution/data.list.length
+      console.log(pollution)
+      finalRes = {
+        pollution: pollution
+      } 
+      res.json(finalRes);
     })
+  })
+}
+
+
+
+
+app.get('/weather/:city', getWeather);
+async function getWeather(req, res){
+  fetch(geocodeURL+'?q='+req.params.city+'&limit=1&appid='+apiKey)
+  .then(response => response.json())
+  .then(data => {
+      let rainBool = false
+      fetch(weatherURL+'?lat='+data[0].lat+'&lon='+data[0].lon+'&units=metric&appid=90c462a2eb78cf05539d31d26003491a')
+      .then(response => response.json())
+      .then(data => {
+        let avgWindSpeedPerDay = (Object.values(getAvgWindSpeedPerDay(data.list)))
+        let avgTempPerDay = (Object.values(getAvgTempPerDay(data.list)))
+        let  calcAvgTemp= array => array.reduce((a, b) => a + b) / array.length;
+        let avgTemp = calcAvgTemp(avgTempPerDay)
+        let avgRainfallPerDay = (Object.values(getAvgRainPerDay(data.list)))
+
+        for(let i=0; i<avgRainfallPerDay.length; i++){
+            if(avgRainfallPerDay[i] != 0){
+                rainBool = true
+            }
+        }
+        let date = getDates(data.list)
+        weatherTable = [
+            {date: date[0], avgTempPerDay: avgTempPerDay[0], avgWindSpeedPerDay: avgWindSpeedPerDay[0], avgRainfallPerDay: avgRainfallPerDay[0]},
+            {date: date[1], avgTempPerDay: avgTempPerDay[1], avgWindSpeedPerDay: avgWindSpeedPerDay[1], avgRainfallPerDay: avgRainfallPerDay[1]},
+            {date: date[2], avgTempPerDay: avgTempPerDay[2], avgWindSpeedPerDay: avgWindSpeedPerDay[2], avgRainfallPerDay: avgRainfallPerDay[2]},
+            {date: date[3], avgTempPerDay: avgTempPerDay[3], avgWindSpeedPerDay: avgWindSpeedPerDay[3], avgRainfallPerDay: avgRainfallPerDay[3]},
+            {date: date[4], avgTempPerDay: avgTempPerDay[4], avgWindSpeedPerDay: avgWindSpeedPerDay[4], avgRainfallPerDay: avgRainfallPerDay[4]},
+        ]
+        finalRes = {
+            rain: rainBool,
+            avgTemp: avgTemp,
+            weatherTable: weatherTable
+        }
+        res.json(finalRes)
+    })
+  })
 }
 
 app.get('/currweather/:city', getCurrWeather);
@@ -116,7 +158,7 @@ function getAvgTempPerDay(list){
       const totalTemp = avgTemps[day].reduce((acc, curr) => acc + curr, 0)
       const numTemps = avgTemps[day].length
       const avgTempPerDay = numTemps > 0 ? totalTemp / numTemps : 0
-      avgTemps[day] = avgTempPerDay
+      avgTemps[day] = avgTempPerDay.toFixed(2)
     }
     return avgTemps
 }
