@@ -13,9 +13,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <div id="app" style="background-color: lightblue;">
     <nav class="navbar justify-content-between navbar-dark bg-primary">
-      <!-- <figure class="image is-24x24">
-        <img src="https://cdn-icons-png.flaticon.com/512/648/648198.png">
-      </figure> -->
+
       <a class="navbar-brand" style="color:white">      
         <h1>Weather App</h1>
       </a>
@@ -49,14 +47,18 @@
         </table>
       </div>
 
-      
+      <table>
+        <tr>
+          <td style="padding: 20px;">
       <div class="packingGuide">
         <h3>Packing Guide:</h2>
         <ul>
           <li v-for="guide in packingGuide">{{guide}}</li>
         </ul>
       </div>
+    </td>
 
+    <td style="padding: 20px;">
       <div class="card" style="width: 18rem;">
         <div class="card-header">
           Recommended Hotels
@@ -79,6 +81,9 @@
           </li>
         </ul>
       </div>
+    </td>
+    </tr>
+    </table>
     </div>
   </div>
 

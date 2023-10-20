@@ -137,7 +137,7 @@ function getAvgWindSpeedPerDay(list){
       const totalWindSpeed = avgWindSpeeds[day].reduce((acc, curr) => acc + curr, 0)
       const numWindSpeeds = avgWindSpeeds[day].length
       const avgWindSpeedPerDay = numWindSpeeds > 0 ? totalWindSpeed / numWindSpeeds : 0
-      avgWindSpeeds[day] = avgWindSpeedPerDay
+      avgWindSpeeds[day] = avgWindSpeedPerDay.toFixed(2)
     }
     return avgWindSpeeds
 }
@@ -194,7 +194,7 @@ function getAvgRainPerDay(list){
       const totalRain = avgRain[day].reduce((acc, curr) => acc + curr, 0)
       const numRain = avgRain[day].length
       const avgRainfallPerDay = numRain > 0 ? totalRain / numRain : 0
-      avgRain[day] = avgRainfallPerDay
+      avgRain[day] = avgRainfallPerDay.toFixed(2)
     }
     return avgRain
 }
