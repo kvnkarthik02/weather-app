@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "amadeus": "^9.0.0",
+    "  ": "^9.0.0",
     "axios": "^1.5.1",
     "bulma": "^0.9.4",
     "cheerio": "^1.0.0-rc.12",

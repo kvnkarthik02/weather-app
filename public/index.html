@@ -30,7 +30,7 @@
       </div>
     
       <div class="weathertable" >
-        <h3>Weather for the next 5 days:</h2>
+        <h2>Weather for the next 5 days:</h2>
         <table class="table" border="3">
           <tr>
             <th>Date</th>
@@ -51,9 +51,41 @@
         <tr>
           <td style="padding: 20px;">
       <div class="packingGuide">
-        <h3>Packing Guide:</h2>
+        <h2>Packing Guide:</h2>
         <ul>
-          <li v-for="guide in packingGuide">{{guide}}</li>
+          <li v-if="rain">
+            We recommend you to bring an umbrella, rain is awaiting you!
+            <div>
+              <img src="assets/rain.gif" ></img>
+            </div>
+          </li>
+          <li v-if="hotBool">
+            PACK LIGHT CLOTHES, BRING SUNSCREEN! THIS IS NOT A DRILL, IT IS GOING TO BE HOT!!
+            <div>
+              <img src="assets/heat.gif" ></img>
+            </div>
+          </li>
+          <li v-if="mildBool">
+            We recommend you to bring a hat and sunglasses, it's going to be mildly warm!
+            <div>
+              <img src="assets/mild.gif" ></img>
+            </div>
+          </li>
+          <li v-if="coldBool">
+            We recommend you to bring a jacket, it's going to be cold!
+            <div>
+              <img src="assets/cold.gif" ></img>
+            </div>
+          </li>
+
+          <li v-if="pollutionBool">
+            "We recommend you to bring a mask, the air is polluted!"
+            <div>
+              <img src="assets/mask.gif" ></img>
+            </div>
+          </li>
+
+
         </ul>
       </div>
     </td>
@@ -113,10 +145,6 @@
       flex-direction: column;
       align-items: center;
     }
-    .iframe.sad1 , .iframe.sad2{
-      display: inline;
-    }
-
   </style>
 
 </body>
@@ -128,6 +156,10 @@
     data:{
       city: '',
       rain: false, 
+      hotBool: false,
+      mildBool: false,
+      coldBool: false,
+      pollutionBool: false,
       avgTemp: null,
       weatherTable: null,
       currTemp: null,
@@ -139,7 +171,6 @@
     }, 
     methods :{
       getInfo: getWeather,
-
     }
   })
 
@@ -156,18 +187,29 @@
     fetch('http://127.0.0.1:3000/weather/' + this.city)
     .then(response => response.json())
     .then(response => {
-      // console.log(response)
+      this.hotBool = false;
+      this.coldBool = false;
+      this.mildBool = false
       this.rain = response.rain
       this.avgTemp = response.avgTemp
       this.weatherTable = response.weatherTable
+      console.log(this.rain)
+      console.log(this.avgTemp)
+
       if(this.rain){
         this.packingGuide.push("We recommend you to bring an umbrella, rain is awaiting you!")
       }
       if(this.avgTemp<13){
         this.packingGuide.push("We recommend you to bring a jacket, it's going to be cold!")
+        this.coldBool = true
       }
       else if(this.avgTemp<=23 && this.avgTemp>=13){
-        this.packingGuide.push("We recommend you to bring a hat and sunglasses, it's going to be hot!")
+        this.packingGuide.push("We recommend you to bring a hat and sunglasses, it's going to be mildly warm!")
+        this.mildBool = true
+      }
+      else if(this.avgTemp>23){
+        this.packingGuide.push("PACK LIGHT CLOTHES, BRING SUNSCREEN! THIS IS NOT A DRILL, IT IS GOING TO BE HOT!!")
+        this.hotBool = true
       }
     })
 
@@ -177,19 +219,18 @@
       this.pollution = response.pollution
       if(this.pollution>10){
         this.packingGuide.push("We recommend you to bring a mask, the air is polluted!")
+        this.pollutionBool = true
       }
     })
 
     fetch('http://127.0.0.1:3000/hotels/' + this.city)
     .then(response => response.json())
     .then(response => {
-      // console.log(response)
       for(let i =0; i<5; i++) {
         this.hotelList.push(response[i].name)
-        let outLink = "https://www.google.com/search?q=" + response[i].name.split(' ').join('+');
+        let outLink = "https://www.google.com/search?q=" + response[i].name.split(' ').join('+') +'+' + this.city;
         this.hotelLink.push(outLink)
       }
-
     })
   }
 

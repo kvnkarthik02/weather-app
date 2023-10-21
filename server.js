@@ -17,7 +17,7 @@ const apiKey = "90c462a2eb78cf05539d31d26003491a"
 //https://github.com/amadeus4dev/amadeus-node
 var amadeus = new amadeus({
   clientId: 'u9I90aqxDr6aypQU2NokJa7TtlfR0QeH',
-  clientSecret: 'zhxGkAGzQVjZD65Y'
+  clientSecret: 'zhxGkAGzQVjZD65Y' 
 });
 
 
@@ -49,7 +49,7 @@ async function getPollution(req, res) {
         pollution =pollution +  data.list[i].components.pm2_5
       }
       pollution = pollution/data.list.length
-      console.log(pollution)
+      // console.log(pollution)
       finalRes = {
         pollution: pollution
       } 
@@ -59,21 +59,20 @@ async function getPollution(req, res) {
 }
 
 
-
-
 app.get('/weather/:city', getWeather);
 async function getWeather(req, res){
   fetch(geocodeURL+'?q='+req.params.city+'&limit=1&appid='+apiKey)
   .then(response => response.json())
   .then(data => {
       let rainBool = false
-      fetch(weatherURL+'?lat='+data[0].lat+'&lon='+data[0].lon+'&units=metric&appid=90c462a2eb78cf05539d31d26003491a')
+      fetch(weatherURL+'?lat='+data[0].lat+'&lon='+data[0].lon+'&units=metric&appid='+apiKey)
       .then(response => response.json())
       .then(data => {
         let avgWindSpeedPerDay = (Object.values(getAvgWindSpeedPerDay(data.list)))
         let avgTempPerDay = (Object.values(getAvgTempPerDay(data.list)))
-        let  calcAvgTemp= array => array.reduce((a, b) => a + b) / array.length;
-        let avgTemp = calcAvgTemp(avgTempPerDay)
+        avgTempPerDay = avgTempPerDay.map(function(str){return parseFloat(str);})
+        let  tempSum= avgTempPerDay.reduce((a, b) => a + b, 0) 
+        let avgTemp = tempSum / avgTempPerDay.length;
         let avgRainfallPerDay = (Object.values(getAvgRainPerDay(data.list)))
 
         for(let i=0; i<avgRainfallPerDay.length; i++){
@@ -89,7 +88,7 @@ async function getWeather(req, res){
             {date: date[3], avgTempPerDay: avgTempPerDay[3], avgWindSpeedPerDay: avgWindSpeedPerDay[3], avgRainfallPerDay: avgRainfallPerDay[3]},
             {date: date[4], avgTempPerDay: avgTempPerDay[4], avgWindSpeedPerDay: avgWindSpeedPerDay[4], avgRainfallPerDay: avgRainfallPerDay[4]},
         ]
-        finalRes = {
+          finalRes = {
             rain: rainBool,
             avgTemp: avgTemp,
             weatherTable: weatherTable
@@ -161,6 +160,7 @@ function getAvgTempPerDay(list){
       avgTemps[day] = avgTempPerDay.toFixed(2)
     }
     return avgTemps
+    
 }
 
   
